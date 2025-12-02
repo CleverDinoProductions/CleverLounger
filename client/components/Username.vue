@@ -1,6 +1,11 @@
 <template>
 	<span
-		:class="['user', {[nickColor]: store.state.settings.coloredNicks}, {active: active}]"
+		:class="[
+			'user', 
+			{[nickColor]: store.state.settings.coloredNicks}, 
+			{active: active},
+			modeClass
+		]"
 		:data-name="user.nick"
 		role="button"
 		v-on="onHover ? {mouseenter: hover} : {}"
@@ -49,6 +54,25 @@ export default defineComponent({
 			return props.user.mode;
 		});
 
+		const modeClass = computed(() => {
+			const userMode = mode.value;
+		
+			if (!userMode) {
+				return 'user-mode-normal';
+			}
+		
+			// Map IRC mode symbols to CSS class names
+			const modeMap: Record<string, string> = {
+				'~': 'user-mode-owner',
+				'&': 'user-mode-admin',
+				'@': 'user-mode-op',
+				'%': 'user-mode-half-op',
+				'+': 'user-mode-voice',
+			};
+		
+			return modeMap[userMode] || 'user-mode-normal';
+		});
+
 		// TODO: Nick must be ! because our user prop union includes UserInMessage
 		const nickColor = computed(() => colorClass(props.user.nick!));
 
@@ -74,11 +98,12 @@ export default defineComponent({
 
 		return {
 			mode,
+			modeClass,
 			nickColor,
 			hover,
 			openContextMenu,
 			store,
 		};
-	},
+	}
 });
 </script>
